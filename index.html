@@ -186,32 +186,76 @@
     </div>
 
     <script>
+       
+        // Função para obter a lista de materiais do localStorage
+        function getMaterialListFromLocalStorage() {
+            var materialList = localStorage.getItem('materialList');
+            return materialList ? JSON.parse(materialList) : [];
+        }
+
+        // Função para salvar a lista de materiais no localStorage
+        function saveMaterialListToLocalStorage(materialList) {
+            localStorage.setItem('materialList', JSON.stringify(materialList));
+        }
+
+        // Função para adicionar um material à lista
         function addMaterial() {
             var materialInput = document.getElementById("materialInput");
-            var materialList = document.getElementById("materialList");
+            var materialList = getMaterialListFromLocalStorage();
 
             if (materialInput.value.trim() !== "") {
-                var materialRow = document.createElement("tr");
-                materialRow.innerHTML = `
-                    <td>${materialInput.value}</td>
-                    <td><i class='bx bx-trash-alt' onclick='removeMaterial(this)'></i></td>
-                `;
+                var material = materialInput.value;
+                materialList.push(material);
 
-                materialList.appendChild(materialRow);
+                // Atualizar o localStorage
+                saveMaterialListToLocalStorage(materialList);
+
+                // Atualizar a tabela na interface
+                updateMaterialTable(materialList);
+
                 materialInput.value = "";
             }
         }
 
-        function removeMaterial(element) {
-            var materialList = document.getElementById("materialList");
-            var row = element.parentNode.parentNode;
-            materialList.removeChild(row);
+        // Função para remover um material da lista
+        function removeMaterial(index) {
+            var materialList = getMaterialListFromLocalStorage();
+            materialList.splice(index, 1);
+
+            // Atualizar o localStorage
+            saveMaterialListToLocalStorage(materialList);
+
+            // Atualizar a tabela na interface
+            updateMaterialTable(materialList);
         }
 
+        // Função para atualizar a tabela na interface
+        function updateMaterialTable(materialList) {
+            var materialListElement = document.getElementById("materialList");
+            materialListElement.innerHTML = ""; // Limpar a tabela
+
+            // Adicionar os materiais à tabela
+            materialList.forEach(function (material, index) {
+                var materialRow = document.createElement("tr");
+                materialRow.innerHTML = `
+                    <td>${material}</td>
+                    <td><i class='bx bx-trash-alt' onclick='removeMaterial(${index})'></i></td>
+                `;
+
+                materialListElement.appendChild(materialRow);
+            });
+        }
+
+        // Função para imprimir a lista
         function printList() {
-            // Lógica de impressão aqui
             window.print();
         }
+
+        // Carregar a lista de materiais ao carregar a página
+        window.onload = function () {
+            var materialList = getMaterialListFromLocalStorage();
+            updateMaterialTable(materialList);
+        };
     </script>
 </body>
 
